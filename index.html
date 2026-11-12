@@ -1,4 +1,35 @@
 
+function speak(t) {
+  const output = document.getElementById('output');
+  output.textContent = t;
+
+  speechSynthesis.cancel();
+
+  const speech = new SpeechSynthesisUtterance(t);
+  speech.lang = 'en-GB';
+  speech.rate = 0.82;
+  speech.pitch = 0.72;
+  speech.volume = 1;
+
+  const voices = speechSynthesis.getVoices();
+
+  const british = voices.filter(v =>
+    v.lang.toLowerCase().includes('en-gb')
+  );
+
+  const preferred = british.find(v =>
+    /male|daniel|george|oliver/i.test(v.name)
+  );
+
+  if (preferred) {
+    speech.voice = preferred;
+  } else if (british.length) {
+    speech.voice = british[0];
+  }
+
+  speechSynthesis.speak(speech);
+}
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
