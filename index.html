@@ -1,0 +1,186 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#020817">
+<title>JARVIS AI</title>
+<style>
+* { box-sizing:border-box; }
+body {
+ margin:0;
+ background:radial-gradient(circle at center,#09234a,#020817 70%);
+ color:#45caff;
+ font-family:Arial,sans-serif;
+ min-height:100vh;
+ text-align:center;
+}
+header { padding:25px 10px 5px; letter-spacing:5px; }
+h1 { font-size:35px; text-shadow:0 0 18px #00aaff; }
+.status { color:#8abbd7; font-size:12px; }
+.core {
+ width:230px;height:230px;
+ margin:35px auto;
+ border:3px solid #27bfff;
+ border-radius:50%;
+ display:flex;align-items:center;justify-content:center;
+ box-shadow:0 0 25px #008cff,inset 0 0 25px #008cff;
+ animation:pulse 3s infinite;
+}
+.core-inner {
+ width:165px;height:165px;border:2px solid #6ce6ff;
+ border-radius:50%;
+ display:flex;align-items:center;justify-content:center;
+ font-size:48px;
+}
+@keyframes pulse {
+ 50% { box-shadow:0 0 45px #00aaff,inset 0 0 35px #008cff; }
+}
+button {
+ background:#07345a;color:#65dfff;
+ border:1px solid #22bfff;
+ padding:14px 22px;border-radius:30px;
+ font-size:15px;margin:8px;
+}
+button:active { background:#0878b5; }
+#talk { font-size:20px;padding:20px 35px; }
+#output {
+ margin:20px auto;padding:15px;
+ width:90%;max-width:500px;
+ min-height:80px;border:1px solid #12669a;
+ border-radius:12px;background:#04162b;
+ color:white;line-height:1.5;
+}
+input {
+ width:65%;padding:13px;
+ border-radius:20px;border:1px solid #168dc4;
+ background:#04162b;color:white;
+}
+footer { margin:30px;color:#5688a5;font-size:11px; }
+</style>
+</head>
+<body>
+
+<header>
+<h1>J.A.R.V.I.S.</h1>
+<div class="status">PERSONAL AI SYSTEM</div>
+<div class="status" id="status">SYSTEM ONLINE</div>
+</header>
+
+<div class="core">
+ <div class="core-inner">J</div>
+</div>
+
+<div id="output">
+Good day. I am JARVIS.
+How may I assist you today?
+</div>
+
+<button id="talk" onclick="listen()">🎙 SPEAK TO JARVIS</button>
+<br>
+<input id="question" placeholder="Type a command...">
+<button onclick="send()">SEND</button>
+<br>
+<button onclick="speak('All systems are operational, sir.')">SYSTEM CHECK</button>
+
+<footer>JARVIS AI • VERSION 1.0</footer>
+
+<script>
+const output = document.getElementById("output");
+const statusText = document.getElementById("status");
+
+function speak(text) {
+ output.textContent = text;
+ const speech = new SpeechSynthesisUtterance(text);
+ speech.rate = 0.88;
+ speech.pitch = 0.75;
+ speech.volume = 1;
+
+ const voices = speechSynthesis.getVoices();
+ const voice = voices.find(v => /male/i.test(v.name));
+ if (voice) speech.voice = voice;
+
+ speechSynthesis.cancel();
+ speechSynthesis.speak(speech);
+}
+
+function reply(text) {
+ const q = text.toLowerCase();
+ let answer = "I'm listening, sir. I am ready to assist you.";
+
+ if(q.includes("hello") || q.includes("hi"))
+ answer = "Good day, sir. JARVIS is at your service.";
+
+ else if(q.includes("your name"))
+ answer = "I am JARVIS, your personal AI assistant.";
+
+ else if(q.includes("time"))
+ answer = "The current time is " +
+ new Date().toLocaleTimeString();
+
+ else if(q.includes("date"))
+ answer = "Today is " +
+ new Date().toLocaleDateString();
+
+ else if(q.includes("system"))
+ answer = "All systems are operational, sir.";
+
+ else if(q.includes("website"))
+ answer = "I can help you plan and write website code. What website shall we build?";
+
+ else if(q.includes("app"))
+ answer = "I can help you design and write an application. Tell me what app you need.";
+
+ else if(q.includes("joke"))
+ answer = "Why did the computer go to the doctor? It had a virus.";
+
+ else if(q.includes("thank"))
+ answer = "You're most welcome, sir.";
+
+ else if(q.includes("goodbye"))
+ answer = "Until next time, sir.";
+
+ speak(answer);
+}
+
+function send() {
+ const field = document.getElementById("question");
+ const text = field.value.trim();
+ if(!text) return;
+ field.value = "";
+ reply(text);
+}
+
+function listen() {
+ const Recognition = window.SpeechRecognition ||
+ window.webkitSpeechRecognition;
+
+ if(!Recognition) {
+ speak("Voice recognition is not supported in this browser. Please use Chrome.");
+ return;
+ }
+
+ const recognition = new Recognition();
+ recognition.lang = "en-AU";
+ recognition.interimResults = false;
+
+ statusText.textContent = "LISTENING...";
+ recognition.onresult = e => {
+ const text = e.results[0][0].transcript;
+ statusText.textContent = "PROCESSING...";
+ reply(text);
+ statusText.textContent = "SYSTEM ONLINE";
+ };
+ recognition.onerror = () => {
+ statusText.textContent = "VOICE ERROR - TRY AGAIN";
+ };
+ recognition.onend = () => {
+ if(statusText.textContent === "LISTENING...")
+ statusText.textContent = "SYSTEM ONLINE";
+ };
+ recognition.start();
+}
+</script>
+</body>
+</html>
